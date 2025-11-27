@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akash Vibes 🎵</title>
+
+<style>
+:root {
+  --bg-color: #ffffff;
+  --text-color: #111;
+  --card-color: #f2f2f2;
+  --accent-color: #007aff;
+}
+body.dark {
+  --bg-color: #0e0e0e;
+  --text-color: #fff;
+  --card-color: #1c1c1c;
+  --accent-color: #00b7ff;
+}
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background 0.5s, color 0.5s;
+}
+header {
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 15px;
+  letter-spacing: 1px;
+  background: var(--card-color);
+}
+.theme-toggle {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  background: var(--card-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 12px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  z-index: 100;
+}
+.theme-toggle:hover {
+  background: var(--accent-color);
+  color: white;
+}
+
+#library {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 10px;
+  gap: 15px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.search-bar {
+  width: 90%;
+  max-width: 450px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+  margin-bottom: 15px;
+  font-size: 1rem;
+}
+
+/* FINAL SMOOTH HOVER ANIMATION */
+.song-card {
+    padding: 12px 18px;
+    width: 90%;
+    max-width: 450px;
+    background: var(--card-color);
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+.song-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+    background: rgba(0,0,0,0.08);
+}
+
+.fade {
+    animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+
+#detail {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 10px;
+  animation: pop 0.35s ease;
+}
+@keyframes pop {
+    0% { opacity: 0; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.song-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  text-align: center;
+}
+.song-meta {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 15px;
+  text-align: center;
+}
+.song-image {
+  width: 80%;
+  max-width: 300px;
+  border-radius: 20px;
+  filter: brightness(1.2);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  margin-bottom: 15px;
+}
+audio {
+  width: 90%;
+  margin-bottom: 15px;
+}
+.download-btn, .back-btn {
+  margin-top: 8px;
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 15px;
+  cursor: pointer;
+}
+
+footer {
+  text-align: center;
+  padding: 10px 0;
+  font-size: 0.9rem;
+  background: var(--card-color);
+  color: var(--text-color);
+  width: 100%;
+  margin-top: 10px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+  .category-bar {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 0;
+  scrollbar-width: none;
+}
+
+.category-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.category {
+  padding: 8px 16px;
+  background: #f2f2f2;
+  border-radius: 20px;
+  white-space: nowrap;
+  font-size: 15px;
+  border: 1px solid #ddd;
+  transition: 0.2s;
+}
+
+.category.active {
+  background: #000;
+  color: white;
+  border-color: #000;
+}
+
+.category:active {
+  transform: scale(0.9);
+  }
+</style>
+</head>
+
+
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()">🌗 Mode</button>
+  <p id="totalCount" style="
+  position: fixed;
+  top: 60px;
+  right: 15px;
+  font-size: 12px;
+  opacity: 0.6;
+  margin: 0;
+"></p>
+<header>𝓜𝓾𝓼𝓲𝓬 𝐿𝓸𝓊𝓷𝓰𝑒</header>
+
+  <div class="category-bar">
+  <div class="category active" data-cat="all">All Songs</div>
+  <div class="category" data-cat="english">English Songs</div>
+  <div class="category" data-cat="lofi">Lofi Songs</div>
+  <div class="category" data-cat="sad">Sad Songs</div>
+  </div>
+
+<div id="library">
+  <input type="text" class="search-bar" id="searchInput" placeholder="Search songs...">
+</div>
+
+<div id="detail">
+  <div class="song-title" id="songTitle"></div>
+  <div class="song-meta" id="songMeta"></div>
+  <img src="audio.jpg" class="song-image">
+  <audio id="audio" controls></audio>
+  <button class="download-btn" id="downloadBtn">Download</button>
+  <button class="back-btn" onclick="backToLibrary()">Back</button>
+</div>
+
+<footer>🎶 Made by Akash 💫</footer>
+
+<script>
+const songs = [
+  {file: "Dil Hai Tumhaara.m4a", title: "Dil h tumhara"},
+  {file: "Do Dil Mil Rahe Hain.m4a", title: "Do Dil mil rahe h"},
+  {file: "Guzaara.m4a", title: "Guzaara"},
+  {file: "Hasate Ho Rulate Ho.m4a", title: "Hasate Ho rulate ho"},
+  {file: "Premika Ne Pyaar se.m4a", title: "Premika"},
+  {file: "Yeh Ratein Yeh Mausam.m4a", title: "Ye raate ye mausam"},
+  {file: "Ladki Badi Anjani Hai.m4a", title: "Ladki badi Anjani h"},
+  {file: "Aaj se teri.mp3", title: "Aaj Se Teri"},
+  {file: "Apa Fer Milange.mp3", title: "Apa Fer Milange"},
+  {file: "Bulleya.mp3", title: "Bulleya"},
+  {file: "Falak Tak Chal Sath Mere.mp3", title: "Falak Tak Chal Sath Mere"},
+  {file: "Raataan Lambiyan.mp3", title: "Raataan Lambiyan"},
+  {file: "Gulabi Aankhen.mp3", title: "Gulabi Aankhen"},
+  {file: "Pee Loon.mp3", title: "Pee Loon"},
+  {file: "Channa Mereya.mp3", title: "Channa Mereya"},
+  {file: "Shayad.mp3", title: "Shayad"},
+  {file: "kesariya.mp3", title: "Kesariya"},
+  {file: "saibo.mp3", title: "Saibo"},
+  {file: "Jeene Laga Hoon.mp3", title: "Jeene Laga Hoon"},
+  {file: "sajni re.mp3", title: "Sajni"},
+  {file: "Kal Ho Na Ho.mp3", title: "Kal Ho Na Ho"},
+  {file: "muskurane ki wajah tum ho.mp3", title: "Muskurane"},
+  {file: "Ranjha.mp3", title: "Ranjha"},
+  {file: "Thoda Thoda Pyaar.mp3", title: "Thoda Thoda Pyaar"},
+  {file: "dil ibaadat.mp3", title: "Dil Ibadat"},
+  {file: "Tune Jo Na Kaha.mp3", title: "Tune Jo Na Kaha"},
+  {file: "Tumsa Koi Pyaara.mp3", title: "Tumsa Koi Pyaara"},
+  {file: "Nanga Punga Dost.mp3", title: "Nanga punga dost"},
+  {file: "aaja Sanam madhur chandani.mp3", title: "Aaja sanam"},
+  {file: "Badtameez Dil.mp3", title: "Badtameez dil"},
+  {file: "Buddhu Sa Mann h.mp3", title: "buddhu sa man h"},
+  {file: "Abhi Na Jaao Chhod Kar.mp3", title: "Abhi na jao chhod kar"},
+  {file: "Chaar kadam.mp3", title: "chaar kadam"},
+  {file: "Chor Bazari Phir Se.mp3", title: "chor bazari"},
+  {file: "Dekha ek khwab.mp3", title: "dekha ek khwaab"},
+  {file: "dekha hazaro dafa aapko.mp3", title: "dekha hazaro dafa aapko"},
+  {file: "Dil Kya Kare Jab Kissise.mp3", title: "kya kare jab kisi se"},
+  {file: "dildarian.mp3", title: "Dildarian"},
+  {file: "Ganga Kinare.mp3", title: "Ganga kinare"},
+  {file: "Har Funn Maula.mp3", title: "Har fun maula"},
+  {file: "Hum Tere Pyar mein.mp3", title: "ham tere pyar me"},
+  {file: "iktara.mp3", title: "iktara"},
+  {file: "Ilahi song lyrics (arijit singh).m4a", title: "Illahi"},
+  {file: "Intezaar.mp3", title: "Intezaar"},
+  {file: "ishq wala love.mp3", title: "ishq wala love"},
+  {file: "Jab Koi Baat.mp3", title: "jab koi baat bigad jaaye"},
+  {file: "Itna Na Mujhse Tu Pyaar Badha.mp3", title: "itna na mujhse tu pyar badha"},
+  {file: "Jeene Laga Hoon.mp3", title: "jeene laga hoon"},
+  {file: "Kasturi.mp3", title: "kasturi"},
+  {file: "kho gaye hum kahan.mp3", title: "kho gaye ham kaha"},
+  {file: "koi naa.mp3", title: "koi naa"},
+  {file: "Love is a Waste of Time.mp3", title: "love is a waste of time"},
+  {file: "Maine Royaan.mp3", title: "maine royan"},
+  {file: "Mann Mera.mp3", title: "Mann mera"},
+  {file: "Mere Samnewali Khidki Mein.mp3", title: "mere saamne wali khidki mein"},
+  {file: "O Re Piya.mp3", title: "o re piya"},
+  {file: "Labon Ko.mp3", title: "Labon ko"},
+  {file: "Mera Dil Bhi Kitna Pagal Hai.mp3", title: "Mera dil bhi kitna pagal h"},
+  {file: "O Meri Laila.mp3", title: "O meri Laila"},
+  {file: "O Rangrez.mp3", title: "Rangrez"},
+  {file: "pal pal.mp3", title: "Pal Pal"},
+  {file: "phir Mohabbat.mp3", title: "phir Mohabbat"},
+  {file: "Raanjhanaa Hua Mai Tera.mp3", title: "Ranjhana Hua me tera"},
+  {file: "Radhaan kese n jale.mp3", title: "Radha kese n jale"},
+  {file: "Sach Keh Raha Hai Deewana.mp3", title: "sach keh rha h dewaana"},
+  {file: "sahiba.mp3", title: "Sahiba"},
+  {file: "saiyaara.mp3", title: "saiyaara"},
+  {file: "Samjhawan.mp3", title: "Samjhawan"},
+  {file: "sawariya tera.mp3", title: "Sawariya tera"},
+  {file: "Shikayat by AUR.m4a", title: "Shikayat"},
+  {file: "Shree Ram Stuti.mp3", title: "Shree Ram stuti"},
+  {file: "Sweety Tera Drama.mp3", title: "Sweety tera drama"},
+  {file: "Tera Mera Hai Pyar Amar _  Ishq Murshid.m4a", title: "Tera mera h pyar amar"},
+  {file: "Teri Baaton Mein Aisa Uljha Jiya.mp3", title: "Teri baaton me"},
+  {file: "Tu Mile Dil Khile.mp3", title: "Tu mile"},
+  {file: "Ye Tune Kya Kiya.mp3", title: "Ye tune kya kiya"},
+  {file: "saudebaazi.mp3", title: "Saudebaazi"},
+  {file: "Bijlee Bijlee.mp3", title: "Bijlee Bijlee"},
+  {file: "Brown munde.m4a", title: "Brown munde"},
+  {file: "Desi Kalakaar.mp3", title: "Desi kalakar"},
+  {file: "Gerua.m4a", title: "Gerua"},
+  {file: "Jhol.mp3", title: "Jhol"},
+  {file: "Manwa lage.m4a", title: "Manwa lage"},
+  {file: "Naacho Naacho.m4a", title: "Nacho Nacho"},
+  {file: "Pasoori.m4a", title: "Pasoori"},
+  {file: "Sukh ke sab saathi.mp3", title: "sukh ke sab saathi"},
+  {file: "sun rha h n tu.m4a", title: "sun rha h n tu"},
+  {file: "Tu Aake Dekhle.m4a", title: "Tu aake dekh le"},
+  {file: "Zihaal e Miskin.mp3", title: "Zihal e miskin.."},
+  {file: "Tu Hi Haqeeqat.mp3", title: "Tu Hi Haqeeqat"},
+  {file: "Dulhe Ka Sehra.m4a", title: "Dulhe ka sehra suhana"},
+  {file: "Mere Rang Me Rangne Wali.m4a", title: "Mere rang me rangne wali"},
+  {file: "Tere Bina.m4a", title: "Tere bina"},
+  {file: "Blue Bird.m4a", title: "Blue bird"},
+  {file: "Fursat.m4a", title: "Fursat"},
+  {file: "Hadh Kardi Aapne.m4a", title: "Hadh kadi aapne"},
+  {file: "Khwab.m4a", title: "khawab"},
+  {file: "Let Me Down Slowly.m4a", title: "let me down slowly"},
+  {file: "Lil Tecca - Ransom (Official Music Video).m4a", title: "Ransom"},
+  {file: "Luka Chuppi.mp3", title: "Lukka chhippi"},
+  {file: "MARZ.m4a", title: "Marz"}
+];
+
+/* SORT SONGS A → Z */
+songs.sort((a, b) => a.title.localeCompare(b.title));
+  const categoryBtns = document.querySelectorAll('.category');
+
+categoryBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    categoryBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const cat = btn.getAttribute('data-cat');
+    filterSongs(cat);
+  });
+});
+
+const library = document.getElementById('library');
+const detail = document.getElementById('detail');
+const songTitle = document.getElementById('songTitle');
+const songMeta = document.getElementById('songMeta');
+const audio = document.getElementById('audio');
+const downloadBtn = document.getElementById('downloadBtn');
+const searchInput = document.getElementById('searchInput');
+
+function renderLibrary() {
+  library.querySelectorAll('.song-card').forEach(e => e.remove());
+
+  songs.forEach((song, index)=>{
+    const card = document.createElement('div');
+    card.classList.add('song-card', 'fade');
+    card.textContent = song.title;
+    card.addEventListener('click', ()=> showDetail(index));
+    library.appendChild(card);
+  });
+}
+
+renderLibrary();
+  document.getElementById("totalCount").textContent = `${songs.length} Songs`;
+
+function showDetail(index){
+  const s = songs[index];
+  songTitle.textContent = s.title;
+  songMeta.textContent = s.singer ? `Singer: ${s.singer}` : "";
+  audio.src = s.file;
+  audio.play();
+
+  downloadBtn.onclick = () => {
+    const a = document.createElement("a");
+    a.href = s.file;
+    a.download = s.file;
+    a.click();
+  };
+
+  library.style.display = "none";
+  detail.style.display = "flex";
+}
+
+searchInput.addEventListener("input", ()=>{
+  const value = searchInput.value.toLowerCase();
+  document.querySelectorAll(".song-card").forEach(card=>{
+    card.style.display = card.textContent.toLowerCase().includes(value)
+      ? "block" : "none";
+  });
+});
+
+function backToLibrary(){
+  detail.style.display = "none";
+  library.style.display = "flex";
+}
+  audio.addEventListener('ended', ()=>{
+  let randomIndex = Math.floor(Math.random() * songs.length);
+  showDetail(randomIndex);
+});
+
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+  function filterSongs(category) {
+  let filtered;
+
+  if (category === "all") {
+    filtered = songs;
+  } else {
+    filtered = songs.filter(song => song.category === category);
+  }
+
+  displaySongs(filtered);
+  }
+  function displaySongs(list) {
+  library.querySelectorAll('.song-card').forEach(e => e.remove());
+
+  list.forEach((song, index)=>{
+    const card = document.createElement('div');
+    card.classList.add('song-card', 'fade');
+    card.textContent = song.title;
+    card.addEventListener('click', ()=> showDetail(index));
+    library.appendChild(card);
+  });
+  }
+}
+</script>
+
+<!-- BACK BUTTON PREVENT PAGE RELOAD -->
+<script>
+window.history.pushState(null, null, window.location.href);
+window.onpopstate = function () {
+  window.history.pushState(null, null, window.location.href);
+};
+</script>
+
+</body>
+  </html>
